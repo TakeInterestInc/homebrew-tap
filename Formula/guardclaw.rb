@@ -24,13 +24,8 @@ class Guardclaw < Formula
   end
 
   on_linux do
-    if Hardware::CPU.arm?
-      url "https://github.com/TakeInterestInc/agent-guardian/releases/download/v#{version}/guardclaw-linux-arm64.tar.gz"
-      sha256 "PLACEHOLDER"
-    else
-      url "https://github.com/TakeInterestInc/agent-guardian/releases/download/v#{version}/guardclaw-linux-amd64.tar.gz"
-      sha256 "PLACEHOLDER"
-    end
+    url "https://github.com/TakeInterestInc/agent-guardian/releases/download/v#{version}/guardclaw-linux-amd64.tar.gz"
+    sha256 "PLACEHOLDER"
   end
 
   def install

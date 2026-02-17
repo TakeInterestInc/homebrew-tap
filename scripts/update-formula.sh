@@ -1,83 +1,221 @@
 #!/usr/bin/env bash
-# update-formula.sh — Updates Homebrew formulae for a new release.
-#
-# Usage: ./scripts/update-formula.sh v0.1.0
-#
-# This script:
-# 1. Downloads release tarballs from GitHub Releases
-# 2. Computes SHA256 checksums
-# 3. Updates Formula/*.rb files with correct version + checksums
-# 4. Commits and pushes the changes
-#
-# Prerequisites:
-# - gh CLI authenticated
-# - git configured with push access to this repo
-
 set -euo pipefail
 
-VERSION="${1:?Usage: $0 <version-tag>}"
-VERSION_NUM="${VERSION#v}"  # Strip leading 'v'
+usage() {
+  cat <<'EOF'
+Usage: update-formula.sh <version-tag> [--dry-run]
 
-REPO="TakeInterestInc/agent-guardian"
-FORMULAE_DIR="$(cd "$(dirname "$0")/../Formula" && pwd)"
+Examples:
+  ./scripts/update-formula.sh v1.2.3
+  ./scripts/update-formula.sh 1.2.3 --dry-run
 
-echo "Updating formulae for ${VERSION}..."
+Options:
+  --dry-run      Show planned changes without writing files.
+  --formula PATH Use an explicit Homebrew formula file path.
+  --help         Show this help message.
+EOF
+}
 
-# Binaries and their formula files
-declare -A FORMULA_MAP=(
-  ["guardclaw"]="guardclaw.rb"
-  ["guardclaw-mcp"]="guardclaw-mcp.rb"
-  ["guardclaw-shell"]="guardclaw-shell.rb"
-)
+log() {
+  printf '[%s] %s\n' "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" "$*"
+}
 
-PLATFORMS=(
-  "darwin-arm64"
-  "darwin-amd64"
-  "linux-arm64"
-  "linux-amd64"
-)
+if [[ $# -lt 1 ]]; then
+  usage
+  exit 1
+fi
 
-TMPDIR=$(mktemp -d)
-trap 'rm -rf "$TMPDIR"' EXIT
+DRY_RUN=0
+FORMULA_PATH=""
 
-for binary in "${!FORMULA_MAP[@]}"; do
-  formula_file="${FORMULAE_DIR}/${FORMULA_MAP[$binary]}"
-  echo "--- Updating ${formula_file} ---"
-
-  # Update version
-  sed -i.bak "s/version \".*\"/version \"${VERSION_NUM}\"/" "$formula_file"
-
-  for platform in "${PLATFORMS[@]}"; do
-    tarball="${binary}-${platform}.tar.gz"
-    url="https://github.com/${REPO}/releases/download/${VERSION}/${tarball}"
-
-    echo "  Downloading ${tarball}..."
-    if curl -fsSL -o "${TMPDIR}/${tarball}" "$url" 2>/dev/null; then
-      sha=$(shasum -a 256 "${TMPDIR}/${tarball}" | awk '{print $1}')
-      echo "  SHA256: ${sha}"
-
-      # Replace the PLACEHOLDER or existing sha256 for this platform's URL
-      # We use the URL line above the sha256 line to identify which one to replace
-      python3 -c "
-import re, sys
-with open('${formula_file}', 'r') as f:
-    content = f.read()
-# Find the sha256 line that follows the URL for this platform
-pattern = r'(url \".*${tarball}\"\\n\\s+sha256 \")([a-fA-F0-9]+|PLACEHOLDER)(\")'
-replacement = r'\\g<1>${sha}\\3'
-content = re.sub(pattern, replacement, content)
-with open('${formula_file}', 'w') as f:
-    f.write(content)
-"
-      echo "  Updated SHA256 in formula"
-    else
-      echo "  WARN: ${tarball} not found in release, skipping"
-    fi
-  done
-
-  rm -f "${formula_file}.bak"
+RELEASE_TAG=""
+while [[ $# -gt 0 ]]; do
+  case "${1}" in
+    --dry-run)
+      DRY_RUN=1
+      shift
+      ;;
+    --formula)
+      if [[ $# -lt 2 ]]; then
+        echo "error: --formula requires a path" >&2
+        exit 1
+      fi
+      FORMULA_PATH="$2"
+      shift 2
+      ;;
+    --help|-h)
+      usage
+      exit 0
+      ;;
+    --*)
+      echo "error: unknown flag: ${1}" >&2
+      usage
+      exit 1
+      ;;
+    *)
+      if [[ -z "$RELEASE_TAG" ]]; then
+        RELEASE_TAG="$1"
+      else
+        echo "error: unexpected argument: ${1}" >&2
+        usage
+        exit 1
+      fi
+      shift
+      ;;
+  esac
 done
 
-echo ""
-echo "Done. Review changes with: git diff"
-echo "Then commit and push to update the tap."
+if [[ -z "$RELEASE_TAG" ]]; then
+  echo "error: version tag is required" >&2
+  usage
+  exit 1
+fi
+
+if [[ "$RELEASE_TAG" != v* ]]; then
+  RELEASE_TAG="v${RELEASE_TAG}"
+fi
+
+RELEASE_VERSION="${RELEASE_TAG#v}"
+if [[ ! "$RELEASE_VERSION" =~ ^[0-9]+(\.[0-9]+){0,2}(-[A-Za-z0-9.+-]+)?$ ]]; then
+  echo "error: version tag looks invalid: ${RELEASE_TAG}" >&2
+  exit 1
+fi
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+TARGET_REPO="${GITHUB_REPOSITORY:-TakeInterestInc/agent-guardian}"
+
+if [[ -z "$FORMULA_PATH" ]]; then
+  for candidate in \
+    "$REPO_ROOT/Formula/guardclaw.rb" \
+    "$REPO_ROOT/Formula/agent-guardian.rb" \
+    "$REPO_ROOT/guardclaw.rb" \
+    "$REPO_ROOT/Formula/agentguardclaw.rb"; do
+    if [[ -f "$candidate" ]]; then
+      FORMULA_PATH="$candidate"
+      break
+    fi
+  done
+fi
+
+if [[ -z "$FORMULA_PATH" || ! -f "$FORMULA_PATH" ]]; then
+  echo "error: formula file not found; pass --formula /path/to/Formula.rb" >&2
+  exit 1
+fi
+
+log "Updating formula: ${FORMULA_PATH}"
+log "Release tag: ${RELEASE_TAG}"
+log "Release version: ${RELEASE_VERSION}"
+
+python3 - "$FORMULA_PATH" "$RELEASE_VERSION" "$RELEASE_TAG" "$TARGET_REPO" "$DRY_RUN" <<'PY'
+import re
+import sys
+import urllib.request
+
+formula_path, release_version, release_tag, target_repo, dry_run = sys.argv[1:]
+current_version = None
+
+
+def get_checksum(url: str) -> str:
+    import os, pathlib
+    # If RELEASE_ASSET_DIR is set, read the .sha256 file from disk instead of
+    # fetching via unauthenticated HTTP (needed when repo is private).
+    asset_dir = os.environ.get("RELEASE_ASSET_DIR", "")
+    if asset_dir:
+        filename = url.split("/")[-1]          # e.g. guardclaw-darwin-arm64.sha256
+        sha_file = pathlib.Path(asset_dir) / filename
+        if sha_file.exists():
+            checksum = sha_file.read_text().strip().split()[0]
+            if re.fullmatch(r"[0-9a-fA-F]{64}", checksum):
+                return checksum
+        raise RuntimeError(f"sha256 file not found in RELEASE_ASSET_DIR: {sha_file}")
+    with urllib.request.urlopen(url, timeout=30) as response:
+        if response.status != 200:
+            raise RuntimeError(f"failed checksum fetch ({response.status}) for {url}")
+        payload = response.read().decode("utf-8").strip()
+    checksum = payload.split()[0].strip()
+    if not re.fullmatch(r"[0-9a-fA-F]{64}", checksum):
+        raise RuntimeError(f"checksum for {url} is invalid")
+    return checksum
+
+
+with open(formula_path, "r", encoding="utf-8") as fh:
+    lines = fh.read().splitlines(keepends=True)
+
+url_re = re.compile(r'^(\s*url\s+)"([^"]+)"')
+sha_re = re.compile(r'^\s*sha256\s+"[^"]*"')
+version_re = re.compile(r'^(\s*version\s+)"[^"]*"\s*$')
+release_base_re = re.compile(rf"(https://github\.com/{re.escape(target_repo)}/releases/download/)[^/]+/")
+
+updated = list(lines)
+pending = {}
+
+if not any(url_re.match(line) for line in lines):
+    raise RuntimeError("formula contains no url entries")
+
+idx = 0
+while idx < len(updated):
+    match = url_re.match(updated[idx])
+    if not match:
+        idx += 1
+        continue
+
+    line_prefix = match.group(1)
+    url = match.group(2)
+    if "/releases/download/" not in url:
+        idx += 1
+        continue
+
+    parts = url.split("/")
+    artifact = parts[-1]
+    if not artifact:
+        raise RuntimeError(f"cannot infer artifact from URL: {url}")
+
+    new_url = release_base_re.sub(rf"\1{release_tag}/", url)
+    if new_url == url:
+        raise RuntimeError(f"failed to rewrite release URL for artifact {artifact}: {url}")
+
+    # SHA256 files are named without the .tar.gz suffix (e.g. guardclaw-darwin-arm64.sha256)
+    artifact_base = artifact.removesuffix(".tar.gz")
+    checksum_url = f"https://github.com/{target_repo}/releases/download/{release_tag}/{artifact_base}.sha256"
+    checksum = get_checksum(checksum_url)
+
+    updated[idx] = f'{line_prefix}"{new_url}"\n'
+    pending[idx] = checksum
+    idx += 1
+
+if not pending:
+    raise RuntimeError("no releases URLs were updated; formula format may be unsupported")
+
+j = 0
+for _, checksum in pending.items():
+    while j < len(updated) and not sha_re.match(updated[j]):
+        j += 1
+    if j >= len(updated):
+        raise RuntimeError("found url without following sha256 line")
+    updated[j] = re.sub(r'(^\s*sha256\s+)"[^"]*"', fr'\1"{checksum}"', updated[j])
+    j += 1
+
+# Only the first explicit version definition is valid in Homebrew formula files.
+for i, line in enumerate(updated):
+    match = version_re.match(line)
+    if match:
+        current_version = match.group(1)
+        updated[i] = f'{match.group(1)}"{release_version}"\n'
+        break
+else:
+    raise RuntimeError("formula missing version field")
+
+if current_version is None:
+    raise RuntimeError("formula version could not be parsed")
+
+with open(formula_path, "w", encoding="utf-8") as fh:
+    if dry_run != "1":
+        fh.writelines(updated)
+PY
+
+if [[ "$DRY_RUN" == "1" ]]; then
+  log "DRY RUN complete. No files written."
+else
+  log "Formula updated successfully."
+fi

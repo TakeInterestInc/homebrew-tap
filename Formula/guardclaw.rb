@@ -29,7 +29,10 @@ class Guardclaw < Formula
   end
 
   def install
-    bin.install "guardclaw"
+    # Binary in tarball is platform-suffixed (e.g. guardclaw-darwin-arm64)
+    Dir["guardclaw-*"].each do |f|
+      bin.install f => "guardclaw"
+    end
   end
 
   test do

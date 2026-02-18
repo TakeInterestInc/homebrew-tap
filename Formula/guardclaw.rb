@@ -35,6 +35,10 @@ class Guardclaw < Formula
     end
   end
 
+  def post_install
+    system "#{bin}/guardclaw", "init", "claude-code", "--global"
+  end
+
   test do
     assert_match "guardclaw", shell_output("#{bin}/guardclaw --version 2>&1", 0)
   end

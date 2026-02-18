@@ -16,16 +16,16 @@ class Guardclaw < Formula
   on_macos do
     if Hardware::CPU.arm?
       url "https://github.com/TakeInterestInc/guardclaw-releases/releases/download/v0.2.8/guardclaw-darwin-arm64.tar.gz"
-      sha256 "53ecff5d44e3a7133aff90ed961b705bdc051c1d17d33d0b5376d63024b4fd21"
+      sha256 "d831cc08e3f8cca17949613dfedb6d874085fddd06e22b07dbb985ff3114387c"
     else
       url "https://github.com/TakeInterestInc/guardclaw-releases/releases/download/v0.2.8/guardclaw-darwin-amd64.tar.gz"
-      sha256 "9b51af5a008447c3a1ca5d95ab67d1237c8c54afa407ac697bd6694d35868a84"
+      sha256 "107fec37458a1cfd17a7a052493c99325a9eaba08c25e97ff1f0e5ae3a23f67f"
     end
   end
 
   on_linux do
     url "https://github.com/TakeInterestInc/guardclaw-releases/releases/download/v0.2.8/guardclaw-linux-amd64.tar.gz"
-    sha256 "02552868f7decfb2225ea751e26e6dac6b4dc66d38e338926f13be6968e2df9f"
+    sha256 "ab755d9e085a179d620ab8039e23ec2e3588cbde7329bb847cf9559603a6dc80"
   end
 
   def install

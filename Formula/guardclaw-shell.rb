@@ -29,7 +29,9 @@ class GuardclawShell < Formula
   end
 
   def install
-    bin.install "guardclaw-shell"
+    Dir["guardclaw-shell-*"].each do |f|
+      bin.install f => "guardclaw-shell"
+    end
   end
 
   test do

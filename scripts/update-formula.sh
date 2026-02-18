@@ -145,7 +145,8 @@ with open(formula_path, "r", encoding="utf-8") as fh:
 url_re = re.compile(r'^(\s*url\s+)"([^"]+)"')
 sha_re = re.compile(r'^\s*sha256\s+"[^"]*"')
 version_re = re.compile(r'^(\s*version\s+)"[^"]*"\s*$')
-release_base_re = re.compile(rf"(https://github\.com/{re.escape(target_repo)}/releases/download/)[^/]+/")
+# Match any GitHub releases URL so cross-repo migration works (e.g. agent-guardian → guardclaw-releases)
+any_release_re = re.compile(r"https://github\.com/[^/]+/[^/]+/releases/download/[^/]+/")
 
 updated = list(lines)
 pending = {}
@@ -171,7 +172,7 @@ while idx < len(updated):
     if not artifact:
         raise RuntimeError(f"cannot infer artifact from URL: {url}")
 
-    new_url = release_base_re.sub(rf"\1{release_tag}/", url)
+    new_url = any_release_re.sub(f"https://github.com/{target_repo}/releases/download/{release_tag}/", url)
     if new_url == url:
         raise RuntimeError(f"failed to rewrite release URL for artifact {artifact}: {url}")
 

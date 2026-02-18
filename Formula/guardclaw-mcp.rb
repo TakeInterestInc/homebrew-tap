@@ -29,7 +29,9 @@ class GuardclawMcp < Formula
   end
 
   def install
-    bin.install "guardclaw-mcp"
+    Dir["guardclaw-mcp-*"].each do |f|
+      bin.install f => "guardclaw-mcp"
+    end
   end
 
   test do

@@ -176,9 +176,9 @@ while idx < len(updated):
     if new_url == url:
         raise RuntimeError(f"failed to rewrite release URL for artifact {artifact}: {url}")
 
-    # SHA256 files are named without the .tar.gz suffix (e.g. guardclaw-darwin-arm64.sha256)
-    artifact_base = artifact.removesuffix(".tar.gz")
-    checksum_url = f"https://github.com/{target_repo}/releases/download/{release_tag}/{artifact_base}.sha256"
+    # SHA256 files for tarballs include the .tar.gz suffix (e.g. guardclaw-darwin-arm64.tar.gz.sha256)
+    # Note: <artifact>.sha256 is the raw binary hash; <artifact>.tar.gz.sha256 is the tarball hash.
+    checksum_url = f"https://github.com/{target_repo}/releases/download/{release_tag}/{artifact}.sha256"
     checksum = get_checksum(checksum_url)
 
     updated[idx] = f'{line_prefix}"{new_url}"\n'

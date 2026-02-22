@@ -11,21 +11,21 @@ class GuardclawMcp < Formula
   desc "MCP gateway proxy for AI agent security - JSON-RPC 2.0 over stdio"
   homepage "https://guardclaw.dev"
   license :cannot_represent
-  version "0.2.9"
+  version "0.3.0"
 
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/TakeInterestInc/guardclaw-releases/releases/download/v0.2.9/guardclaw-mcp-darwin-arm64.tar.gz"
-      sha256 "e0c471ec2adeacc2867b06d078d6023e8bb7ae4e57d38b52239f8d4303e2219f"
+      url "https://github.com/TakeInterestInc/guardclaw-releases/releases/download/v0.3.0/guardclaw-mcp-darwin-arm64.tar.gz"
+      sha256 "0475b330c8ec0c1d02eb8c680eba6a68f3b0a8538d072166d899e18ca16651c9"
     else
-      url "https://github.com/TakeInterestInc/guardclaw-releases/releases/download/v0.2.9/guardclaw-mcp-darwin-amd64.tar.gz"
-      sha256 "9e6ad1788737504eb915727c6899f4df6296ea17a5639107859f12b429cd89e1"
+      url "https://github.com/TakeInterestInc/guardclaw-releases/releases/download/v0.3.0/guardclaw-mcp-darwin-amd64.tar.gz"
+      sha256 "854e60d1227a0d04836d4dfb090defe80d1e1d031ce4fad127923882ae9d83f6"
     end
   end
 
   on_linux do
-    url "https://github.com/TakeInterestInc/guardclaw-releases/releases/download/v0.2.9/guardclaw-mcp-linux-amd64.tar.gz"
-    sha256 "44ca4a1c53136f0516e8df917a7b212ea74876e43998c6289c012fba2279ff8d"
+    url "https://github.com/TakeInterestInc/guardclaw-releases/releases/download/v0.3.0/guardclaw-mcp-linux-amd64.tar.gz"
+    sha256 "e41b647d22947b26763485490660cb60784b7dd792cf95a716dab098226c7ec4"
   end
 
   def install

@@ -11,21 +11,21 @@ class Guardclaw < Formula
   desc "Policy enforcement for AI agents - 7-layer defense architecture"
   homepage "https://guardclaw.dev"
   license :cannot_represent
-  version "0.3.1"
+  version "0.3.2"
 
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/TakeInterestInc/guardclaw-releases/releases/download/v0.3.1/guardclaw-darwin-arm64.tar.gz"
-      sha256 "9d5235c0c7d518701aa9dcddebc0013b083c52723e53e1b9faa208cead676569"
+      url "https://github.com/TakeInterestInc/guardclaw-releases/releases/download/v0.3.2/guardclaw-darwin-arm64.tar.gz"
+      sha256 "4b7bacf4d4d1328439fa4eed0af80f0d56a4cd1ca7d366128042781295f2637b"
     else
-      url "https://github.com/TakeInterestInc/guardclaw-releases/releases/download/v0.3.1/guardclaw-darwin-amd64.tar.gz"
-      sha256 "5aa680ba3cacd9dd441ad59fde06cb6ae295d22dbd3aad3ccde217e662e669c0"
+      url "https://github.com/TakeInterestInc/guardclaw-releases/releases/download/v0.3.2/guardclaw-darwin-amd64.tar.gz"
+      sha256 "2fb928bdac7523303cd05bf4a625fed0147b54d2d3753d4da8239831e0ce78ee"
     end
   end
 
   on_linux do
-    url "https://github.com/TakeInterestInc/guardclaw-releases/releases/download/v0.3.1/guardclaw-linux-amd64.tar.gz"
-    sha256 "616d970dfc15064b8ce856877ae6b79837f4b2254522e79c438fe7aa12bb0008"
+    url "https://github.com/TakeInterestInc/guardclaw-releases/releases/download/v0.3.2/guardclaw-linux-amd64.tar.gz"
+    sha256 "1c4fcd4e9b165916f440b4e42ad64ec0e5d4a48c742331b4db7cd7e7cd80d901"
   end
 
   def install

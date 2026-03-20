@@ -2,14 +2,14 @@
 # frozen_string_literal: true
 
 # GuardClaw - Security-first AI agent protection
-# https://guardclaw.dev
+# https://guardclaw.com
 #
 # This formula is auto-updated by the release workflow.
 # Manual edits will be overwritten on next release.
 
 class Guardclaw < Formula
   desc "Policy enforcement for AI agents - 7-layer defense architecture"
-  homepage "https://guardclaw.dev"
+  homepage "https://guardclaw.com"
   license :cannot_represent
   version "0.6.1"
 

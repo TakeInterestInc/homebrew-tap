@@ -2,14 +2,14 @@
 # frozen_string_literal: true
 
 # GuardClaw Watchdog - Process health monitoring for GuardClaw agents
-# https://guardclaw.dev
+# https://guardclaw.com
 #
 # This formula is auto-updated by the release workflow.
 # Manual edits will be overwritten on next release.
 
 class GuardclawWatchdog < Formula
   desc "Process watchdog for GuardClaw AI agent protection"
-  homepage "https://guardclaw.dev"
+  homepage "https://guardclaw.com"
   license :cannot_represent
   version "0.6.1"
 

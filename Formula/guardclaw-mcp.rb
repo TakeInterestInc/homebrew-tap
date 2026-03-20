@@ -2,14 +2,14 @@
 # frozen_string_literal: true
 
 # GuardClaw MCP Gateway - MCP protocol proxy with policy enforcement
-# https://guardclaw.dev
+# https://guardclaw.com
 #
 # This formula is auto-updated by the release workflow.
 # Manual edits will be overwritten on next release.
 
 class GuardclawMcp < Formula
   desc "MCP gateway proxy for AI agent security - JSON-RPC 2.0 over stdio"
-  homepage "https://guardclaw.dev"
+  homepage "https://guardclaw.com"
   license :cannot_represent
   version "0.6.1"
 

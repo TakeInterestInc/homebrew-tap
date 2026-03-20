@@ -11,21 +11,21 @@ class GuardclawWatchdog < Formula
   desc "Process watchdog for GuardClaw AI agent protection"
   homepage "https://guardclaw.dev"
   license :cannot_represent
-  version "0.6.0"
+  version "0.6.1"
 
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/TakeInterestInc/guardclaw-releases/releases/download/v0.6.0/guardclaw-watchdog-darwin-arm64.tar.gz"
-      sha256 "ea950db463cf5a88dc6b46cea2ffde0520366dfb4d983bb2b9aa56ea282bb946"
+      url "https://github.com/TakeInterestInc/guardclaw-releases/releases/download/v0.6.1/guardclaw-watchdog-darwin-arm64.tar.gz"
+      sha256 "d60cfc13925655b3498f90e6e169430a50200484067137b24fe0c95eb1217039"
     else
-      url "https://github.com/TakeInterestInc/guardclaw-releases/releases/download/v0.6.0/guardclaw-watchdog-darwin-amd64.tar.gz"
-      sha256 "55e769b2d20ea6d2c8b3b22e498cd43e90eeeb04e2d059ec0486b8c94af0869a"
+      url "https://github.com/TakeInterestInc/guardclaw-releases/releases/download/v0.6.1/guardclaw-watchdog-darwin-amd64.tar.gz"
+      sha256 "2d979fb509c7754450959855bc1a8e34f843c76f526bf12f0fc355c1dfbe030e"
     end
   end
 
   on_linux do
-    url "https://github.com/TakeInterestInc/guardclaw-releases/releases/download/v0.6.0/guardclaw-watchdog-linux-amd64.tar.gz"
-    sha256 "590d60a54b3d3b82eafc441bcfe97b39b2c9d1c94f7baa673ddbf8dfe2e68eac"
+    url "https://github.com/TakeInterestInc/guardclaw-releases/releases/download/v0.6.1/guardclaw-watchdog-linux-amd64.tar.gz"
+    sha256 "d59337cc868d5a9e17c96cf7f35b3a7d8fec1c1271f04a1db2e07709807eec11"
   end
 
   def install

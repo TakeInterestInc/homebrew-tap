@@ -11,21 +11,21 @@ class GuardclawShell < Formula
   desc "Deny-by-default shell wrapper for AI agent security"
   homepage "https://guardclaw.com"
   license :cannot_represent
-  version "0.7.0"
+  version "0.7.1"
 
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/TakeInterestInc/guardclaw-releases/releases/download/v0.7.0/guardclaw-shell-darwin-arm64.tar.gz"
-      sha256 "9ea4935d6795d41289973b435921830d91303d1d461a0d160594e79e7c731cd7"
+      url "https://github.com/TakeInterestInc/guardclaw-releases/releases/download/v0.7.1/guardclaw-shell-darwin-arm64.tar.gz"
+      sha256 "42c149c42d72fd1fc00983e929b17bacd3f91fb9df6b9a0fd3a778fcd2667229"
     else
-      url "https://github.com/TakeInterestInc/guardclaw-releases/releases/download/v0.7.0/guardclaw-shell-darwin-amd64.tar.gz"
-      sha256 "608ef34109d808cbcd608aac8cfaf7c6df82775407e7cba3841fd19cf04405de"
+      url "https://github.com/TakeInterestInc/guardclaw-releases/releases/download/v0.7.1/guardclaw-shell-darwin-amd64.tar.gz"
+      sha256 "9ddce143b4ee2c63b80a86d4ea7abb06a8e86e9b4029e56f8a8cbfded4581384"
     end
   end
 
   on_linux do
-    url "https://github.com/TakeInterestInc/guardclaw-releases/releases/download/v0.7.0/guardclaw-shell-linux-amd64.tar.gz"
-    sha256 "394e3411f1a5497238cb83b668a3939dd100386f0cc670f2865a715606ee6fd1"
+    url "https://github.com/TakeInterestInc/guardclaw-releases/releases/download/v0.7.1/guardclaw-shell-linux-amd64.tar.gz"
+    sha256 "3266a4b29d7e5dcdeed0a416da59a8bf7580dae8ed63a423dab842a8d5e48bf2"
   end
 
   def install
